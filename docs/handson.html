@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>바이럴 쇼츠 스튜디오 핸즈온</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+img{max-width:100%}
+
+/* Layout: left step rail (sticky on desktop, horizontal chips on phone) + one step card per section. Terminal-style output blocks are the visual anchor. */
+:root{
+  --bg:#f4f5f1; --card:#ffffff; --fg:#1b2330; --muted:#5b6673; --line:#d9ddd6;
+  --accent:#0f5f6b; --accent-soft:#dcecee;
+  --term-bg:#1b2330; --term-fg:#e6ebe9; --term-dim:#8c98a4; --ok:#5ec98f; --bad:#ff7a7a; --warn:#f3c76b;
+  --font-body:"IBM Plex Sans KR",-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#121820; --card:#1a222c; --fg:#e8ecef; --muted:#9aa6b2; --line:#2c3642;
+  --accent:#63c3cf; --accent-soft:#17343a; --term-bg:#0c1117; --term-fg:#dfe6e9; --term-dim:#7d8894; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#121820; --card:#1a222c; --fg:#e8ecef; --muted:#9aa6b2; --line:#2c3642;
+  --accent:#63c3cf; --accent-soft:#17343a; --term-bg:#0c1117; --term-fg:#dfe6e9; --term-dim:#7d8894; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.65;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 64px}
+a{color:var(--accent)}
+.wrap{max-width:1080px;margin:0 auto}
+header.top{padding-block:40px 24px;border-bottom:1px solid var(--line)}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:500}
+h1{font-size:clamp(26px,4vw,38px);line-height:1.2;margin:8px 0 10px;text-wrap:balance;font-weight:700}
+.lead{color:var(--muted);max-width:62ch;margin:0}
+.progress{display:flex;align-items:center;gap:12px;margin-top:18px;font-variant-numeric:tabular-nums}
+.bar{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden;max-width:360px}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.progress b{font-weight:500;color:var(--muted);font-size:14px}
+
+.grid{display:grid;grid-template-columns:220px minmax(0,1fr);gap:32px;padding-top:28px}
+nav.rail{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;padding-top:8px}
+nav.rail ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+nav.rail a{display:flex;gap:10px;align-items:baseline;padding:7px 10px;border-radius:6px;color:var(--fg);text-decoration:none;font-size:14px;line-height:1.35}
+nav.rail a:hover{background:var(--accent-soft)}
+nav.rail .n{font-family:var(--font-mono);font-size:12px;color:var(--muted);min-width:18px;font-variant-numeric:tabular-nums}
+nav.rail li.done a{color:var(--muted)} nav.rail li.done .n{color:var(--accent)}
+nav.rail li.done .n::after{content:" ✓"}
+main{min-width:0;display:flex;flex-direction:column;gap:28px}
+
+section.step{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:24px 24px 20px;min-width:0;scroll-margin-top:16px}
+.step-head{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.num{font-family:var(--font-mono);font-size:13px;color:var(--accent);font-weight:500;padding-top:4px;min-width:30px}
+.step-head h2{font-size:21px;margin:0;line-height:1.3;flex:1;min-width:0;text-wrap:balance}
+.time{font-size:12px;color:var(--muted);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.why{margin:10px 0 0 44px;color:var(--fg)}
+.why p{margin:0 0 8px;max-width:66ch}
+.why p:last-child{margin-bottom:0}
+.block{margin:16px 0 0 44px;min-width:0}
+.label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;font-weight:500;display:flex;justify-content:space-between;align-items:center;gap:8px}
+pre{margin:0;font-family:var(--font-mono);font-size:13.5px;line-height:1.6;border-radius:8px;overflow-x:auto;white-space:pre}
+pre.cmd{background:var(--bg);border:1px solid var(--line);padding:12px 14px;color:var(--fg)}
+pre.cmd .p{color:var(--accent);user-select:none}
+pre.out{background:var(--term-bg);color:var(--term-fg);padding:14px 16px;border-top:3px solid var(--accent)}
+pre.out .ok{color:var(--ok)} pre.out .bad{color:var(--bad)} pre.out .warn{color:var(--warn)} pre.out .dim{color:var(--term-dim)}
+pre.out .hl{background:rgba(255,255,255,.1);border-radius:3px;padding:0 3px}
+button.copy{font:inherit;font-size:12px;letter-spacing:0;text-transform:none;background:transparent;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:3px 10px;cursor:pointer}
+button.copy:hover,button.copy:focus-visible{border-color:var(--accent);color:var(--accent);outline:none}
+.success{display:flex;gap:8px;align-items:baseline;margin:10px 0 0 44px;font-size:14px;color:var(--muted)}
+.success b{color:var(--accent);font-weight:500}
+table.opts{border-collapse:collapse;width:100%;font-size:14px;margin:14px 0 0 44px;max-width:calc(100% - 44px)}
+table.opts td{padding:6px 10px 6px 0;border-bottom:1px solid var(--line);vertical-align:top}
+table.opts td:first-child{font-family:var(--font-mono);font-size:13px;white-space:nowrap;color:var(--accent);width:34%}
+.done-row{margin:18px 0 0 44px;display:flex;align-items:center;gap:10px;font-size:14px}
+.done-row input{width:18px;height:18px;accent-color:var(--accent)}
+.note{margin:14px 0 0 44px;padding:10px 14px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 6px 6px 0;font-size:14.5px}
+.note p{margin:0;max-width:66ch}
+.tree{margin-left:44px}
+.end{border:1px dashed var(--line);border-radius:10px;padding:22px 24px;color:var(--muted);font-size:15px}
+.end h2{font-size:19px;color:var(--fg);margin:0 0 10px}
+.end p{max-width:66ch;margin:0 0 8px}
+.end p:last-child{margin:0}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chips span{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--muted)}
+
+@media (max-width:760px){
+  .grid{grid-template-columns:1fr;gap:20px;padding-top:18px}
+  nav.rail{position:static}
+  nav.rail ol{flex-direction:row;flex-wrap:wrap;gap:6px}
+  nav.rail a{padding:4px 10px;border:1px solid var(--line);border-radius:999px;font-size:13px}
+  nav.rail .t{display:none}
+  .why,.block,.success,.done-row,.note,.tree{margin-left:0}
+  table.opts{margin-left:0;max-width:100%}
+  section.step{padding:18px 16px}
+}
+@media (prefers-reduced-motion: reduce){ .bar i{transition:none} }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">viral-shorts-studio · 수강생 핸즈온</div>
+  <h1>설치부터 발행 문구까지, 터미널에서 한 줄씩 따라가기</h1>
+  <p class="lead">연습용 가상 상품 "무선 미니 청소기"로 대본 3편을 만들고, 검사를 통과시키고, 발행 문구까지 손에 쥐어 봅니다. 한 줄 치고, 화면을 확인하고, 다음으로 갑니다. 약 40분.</p>
+  <div class="progress"><div class="bar"><i id="bar"></i></div><b id="count">0 / 11 완료</b></div>
+</header>
+
+<div class="grid">
+<nav class="rail" aria-label="단계">
+<ol id="rail">
+  <li data-s="1"><a href="#s1"><span class="n">0</span><span class="t">준비물 확인</span></a></li>
+  <li data-s="2"><a href="#s2"><span class="n">1</span><span class="t">설치</span></a></li>
+  <li data-s="3"><a href="#s3"><span class="n">2</span><span class="t">줄임말 두 줄</span></a></li>
+  <li data-s="4"><a href="#s4"><span class="n">3</span><span class="t">배치 시작</span></a></li>
+  <li data-s="5"><a href="#s5"><span class="n">4</span><span class="t">소싱 질문</span></a></li>
+  <li data-s="6"><a href="#s6"><span class="n">5</span><span class="t">리서치 반영</span></a></li>
+  <li data-s="7"><a href="#s7"><span class="n">6</span><span class="t">대본 넣고 검사</span></a></li>
+  <li data-s="8"><a href="#s8"><span class="n">7</span><span class="t">첫 문장 고치기</span></a></li>
+  <li data-s="9"><a href="#s9"><span class="n">8</span><span class="t">사진 붙이기</span></a></li>
+  <li data-s="10"><a href="#s10"><span class="n">9</span><span class="t">내보내기·발행 문구</span></a></li>
+  <li data-s="11"><a href="#s11"><span class="n">10</span><span class="t">승인과 게이트</span></a></li>
+</ol>
+</nav>
+
+<main>
+
+<section class="step" id="s1">
+  <div class="step-head"><span class="num">00</span><h2>준비물 확인</h2><span class="time">2분</span></div>
+  <div class="why"><p>터미널(Mac은 "터미널" 앱, Windows는 "PowerShell")을 열고 세 줄을 차례로 쳐 보세요. 첫 줄은 꼭 숫자가 나와야 하고, 둘째와 셋째는 <b>둘 중 하나만</b> 숫자가 나오면 준비 끝이에요. 파이썬이 없으면 Node 판으로 똑같이 진행합니다(2단계에서 한 줄만 달라요).</p></div>
+  <div class="block"><div class="label">명령 <button class="copy" type="button">복사</button></div>
+<pre class="cmd"><span class="p">$ </span>claude --version
+<span class="p">$ </span>python3 --version
+<span class="p">$ </span>node --version</pre></div>
+  <div class="success">Windows에서 <b>python3</b>이 안 되면 <b>python</b>으로도 한 번 쳐 보세요. 둘 다 없고 node도 없으면 nodejs.org에서 LTS를 설치하는 게 가장 쉬워요.</div>
+  <div class="done-row"><input type="checkbox" id="d1" data-s="1"><label for="d1">이 단계 끝</label></div>
+</section>
+
+<section class="step" id="s2">
+  <div class="step-head"><span class="num">01</span><h2>설치</h2><span class="time">5분</span></div>
+  <div class="why"><p>네 줄의 뜻은 이래요. 내 문서 폴더로 가서, 저장소를 내려받고, 그 폴더로 들어가서, 설치 스크립트를 실행한다.</p></div>
+  <div class="block"><div class="label">Mac <button class="copy" type="button">복사</button></div>
+<pre class="cmd"><span class="p">$ </span>cd ~/Documents
+<span class="p">$ </span>git clone https://github.com/ninestonelee/viral-shorts-studio-skill.git
+<span class="p">$ </span>cd viral-shorts-studio-skill
+<span class="p">$ </span>bash scripts/install.sh</pre></div>
+  <div class="block"><div class="label">Windows (PowerShell) <button class="copy" type="button">복사</button></div>
+<pre class="cmd"><span class="p">&gt; </span>cd ~\Documents
+<span class="p">&gt; </span>git clone https://github.com/ninestonelee/viral-shorts-studio-skill.git
+<span class="p">&gt; </span>cd viral-shorts-studio-skill
+<span class="p">&gt; </span>powershell -ExecutionPolicy Bypass -File scripts\install.ps1</pre></div>
+  <div class="block"><div class="label">이렇게 나오면 성공</div>
+<pre class="out">b2b        B2B · 리드 · 컨설팅 — 의사결정자 대상. 사례 숫자 + 1문장 진단 + 상담 CTA.
+brand      브랜드 · 창업자 스토리 — 사람·과정·실패·기록. 판매 압박 없음.
+course     강의 · 모집 · 세미나 — 대상 한정 + 결과 약속은 근거 있는 것만 + 마감.
+health     건강정보 · 운동/습관 — 정보형. 효능 단정 금지, 출처 의무.
+local      지역 매장 · 오프라인 — 위치·현장·사람. 방문 CTA. 지도 링크.
+service    서비스 · 앱 · SaaS — 화면 녹화 중심. 3초 안에 결과 화면.
+<span class="hl">shop-aff   쇼핑 · 제휴(쿠팡 파트너스) — 남의 상품. 대가성 문구 필수.</span>
+shop-own   쇼핑 · 자사 상품 — 내가 파는 상품. 1차 리뷰가 리서치 재료.</pre></div>
+  <div class="success">이 8줄이 <b>장르 팩</b>이에요. 팩 하나에 그 장르의 질문·훅 유형·금지어·표기 문구가 다 들어 있습니다. 오늘은 쿠팡 제휴 상품이니 <b>shop-aff</b>를 씁니다.</div>
+  <div class="note"><p>git이 없다고 나오면 GitHub 페이지 오른쪽 위 녹색 <b>Code → Download ZIP</b>으로 받아 압축을 풀고, 그 폴더에서 설치 스크립트만 실행하세요. 결과는 같아요.</p></div>
+  <div class="done-row"><input type="checkbox" id="d2" data-s="2"><label for="d2">이 단계 끝</label></div>
+</section>
+
+<section class="step" id="s3">
+  <div class="step-head"><span class="num">02</span><h2>줄임말 두 줄과 작업 폴더</h2><span class="time">1분</span></div>
+  <div class="why"><p>이제부터 명령은 전부 터미널에서 칩니다. 매번 긴 주소를 치지 않도록 줄임말 두 개를 만들어 둡니다. <code>V</code>는 프로그램, <code>E</code>는 연습용 예제 데이터 폴더예요. 터미널을 닫으면 사라지니, 다시 열면 이 두 줄만 한 번 더.</p></div>
+  <div class="block"><div class="label">명령 <button class="copy" type="button">복사</button></div>
+<pre class="cmd"><span class="p">$ </span>V=~/.claude/skills/viral-shorts-studio/scripts/vss.py
+<span class="p">$ </span>E=~/Documents/viral-shorts-studio-skill/examples/sample_batch
+<span class="p">$ </span>mkdir -p ~/Documents/shorts &amp;&amp; cd ~/Documents/shorts</pre></div>
+  <div class="success">세 번째 줄은 작업 폴더 <b>shorts</b>를 만들고 그 안으로 들어가는 거예요. 화면에 아무것도 안 나오는 게 정상입니다.</div>
+  <div class="note"><p><b>파이썬이 없는 분은 첫 줄만 이렇게.</b> 그리고 이 뒤의 모든 명령에서 <code>python3 $V</code>를 <code>node $V</code>로 바꿔 치면 됩니다. 나오는 화면은 똑같아요.</p></div>
+  <div class="block"><div class="label">Node 판 <button class="copy" type="button">복사</button></div>
+<pre class="cmd"><span class="p">$ </span>V=~/.claude/skills/viral-shorts-studio/scripts/vss.js</pre></div>
+  <div class="done-row"><input type="checkbox" id="d3" data-s="3"><label for="d3">이 단계 끝</label></div>
+</section>
+
+<section class="step" id="s4">
+  <div class="step-head"><span class="num">03</span><h2>배치 시작</h2><span class="time">2분</span></div>
+  <div class="why"><p>"배치"는 상품 하나로 만드는 대본 묶음이에요. <code>연습1</code>이라는 이름으로 시작합니다.</p></div>
+  <div class="block"><div class="label">명령 <button class="copy" type="button">복사</button></div>
+<pre class="cmd"><span class="p">$ </span>python3 $V -b 연습1 init "미니 청소기 연습" --pack shop-aff --count 3 --subject "무선 미니 청소기" --url https://example.com/p/1 --rel affiliate --notes "차량용, 노즐 1.5cm, 충전 20분"</pre></div>
+  <div class="block"><div class="label">이렇게 나오면 성공</div>
+<pre class="out">배치 생성: /Users/홍길동/Documents/shorts/연습1 (팩 shop-aff, 3편)</pre></div>
+  <table class="opts">
+    <tr><td>-b 연습1</td><td>연습1 폴더에서 작업한다</td></tr>
+    <tr><td>--pack shop-aff</td><td>쿠팡 제휴 팩</td></tr>
+    <tr><td>--count 3</td><td>대본 3편</td></tr>
+    <tr><td>--subject</td><td>상품 이름</td></tr>
+    <tr><td>--url</td><td>상품 링크. 발행 문구에 자동으로 들어감</td></tr>
+    <tr><td>--rel affiliate</td><td>나와 상품의 관계가 "제휴". 그래서 "쿠팡 파트너스…" 표기가 자동으로 붙어요</td></tr>
+    <tr><td>--notes</td><td>메모. 대본 쓸 때 참고</td></tr>
+  </table>
+  <div class="done-row"><input type="checkbox" id="d4" data-s="4"><label for="d4">이 단계 끝</label></div>
+</section>
+
+<section class="step" id="s5">
+  <div class="step-head"><span class="num">04</span><h2>소싱 질문: 이 상품, 만들어도 될까?</h2><span class="time">3분</span></div>
+  <div class="why"><p>쇼츠에서 가장 많은 실수는 안 될 상품에 시간을 쓰는 거예요. 그래서 시작하자마자 세 가지를 묻습니다. <code>y</code>는 예, <code>n</code>은 아니오. <code>--show</code> 뒤에는 영상 첫 3초에 실제로 보일 장면을 한 줄로 적어요. 이게 안 떠오르면 그 상품은 쇼츠로 어렵습니다.</p></div>
+  <div class="block"><div class="label">명령 <button class="copy" type="button">복사</button></div>
+<pre class="cmd"><span class="p">$ </span>python3 $V -b 연습1 sourcing "visible=y,reviews=y,rights=y" --show "시트 틈에 노즐이 들어가 부스러기를 빨아들이는 장면"</pre></div>
+  <div class="block"><div class="label">이렇게 나오면 성공</div>
+<pre class="out"><span class="ok">✔</span> 효과가 눈에 확 보이는가? <span class="dim">(버튼 누르니 커튼이 스르륵)</span>
+<span class="ok">✔</span> 후기가 많은가? <span class="dim">(없으면 볼 데이터가 없다)</span>
+<span class="ok">✔</span> 쓸 소재가 있는가? <span class="dim">(상품 상세 이미지는 판매자 권리 → 캡처 사용 범위 확인, 남의 영상 금지)</span>
+
+소싱 통과 → 시트 틈에 노즐이 들어가 부스러기를 빨아들이는 장면</pre></div>
+  <div class="note"><p><b>한 번 일부러 실패시켜 보세요.</b> 첫 질문만 <code>n</code>으로 바꿉니다.</p></div>
+  <div class="block"><div class="label">명령 <button class="copy" type="button">복사</button></div>
+<pre class="cmd"><span class="p">$ </span>python3 $V -b 연습1 sourcing "visible=n,reviews=y,rights=y" --show "x"</pre></div>
+  <div class="block"><div class="label">멈추는 화면</div>
+<pre class="out"><span class="bad">✘</span> 효과가 눈에 확 보이는가? <span class="dim">(버튼 누르니 커튼이 스르륵)</span>
+<span class="ok">✔</span> 후기가 많은가?
+<span class="ok">✔</span> 쓸 소재가 있는가?
+
+<span class="bad">중단: ✘ 항목이 있어요. 소재를 바꾸거나 대체(alt) 방안을 정하세요.</span></pre></div>
+  <div class="success">하나라도 ✘면 여기서 멈춰요. 넘어가는 옵션은 일부러 없습니다. 확인했으면 <b>위의 y 세 개 명령을 다시 쳐서</b> 통과 상태로 돌려 두세요.</div>
+  <div class="done-row"><input type="checkbox" id="d5" data-s="5"><label for="d5">이 단계 끝</label></div>
+</section>
+
+<section class="step" id="s6">
+  <div class="step-head"><span class="num">05</span><h2>리서치 반영</h2><span class="time">2분</span></div>
+  <div class="why"><p>대본은 상상으로 쓰지 않아요. 실제 리뷰·커뮤니티에서 사람들이 한 말("발화")을 출처와 함께 모아서 씁니다. 실제 수업에서는 Claude가 웹을 검색해 모아 오고, 오늘은 미리 만들어 둔 예제를 넣습니다.</p></div>
+  <div class="block"><div class="label">명령 <button class="copy" type="button">복사</button></div>
+<pre class="cmd"><span class="p">$ </span>python3 $V -b 연습1 ingest research $E/research_raw.json</pre></div>
+  <div class="block"><div class="label">이렇게 나오면 성공</div>
+<pre class="out">리서치 반영: 발화 5건(<span class="hl">출처 없음 0</span>), 트렌드 2건</pre></div>
+  <div class="success"><b>"출처 없음 0"</b>이 중요해요. 출처 없는 발화로 쓴 대본에는 [확인 필요]가 붙어 승인이 안 됩니다.</div>
+  <div class="block"><div class="label">예제 파일 안의 발화 하나</div>
+<pre class="out"><span class="dim">{</span>"quote": "차 안 과자 부스러기는 손으로 털어도 시트 틈에 남는다",
+ "src": "쿠팡 리뷰 #88213", "lv": 0,
+ "hook": "시트 틈 부스러기, 손으로 털지 마세요"<span class="dim">}</span></pre></div>
+  <div class="success"><b>lv</b>는 출처 등급이에요. 0은 리뷰 원문, 1은 커뮤니티 글, 2는 기사, 3은 미확인.</div>
+  <div class="done-row"><input type="checkbox" id="d6" data-s="6"><label for="d6">이 단계 끝</label></div>
+</section>
+
+<section class="step" id="s7">
+  <div class="step-head"><span class="num">06</span><h2>대본 3편 넣고 검사</h2><span class="time">5분</span></div>
+  <div class="why"><p>대본도 실제 수업에서는 Claude가 쓰고, 오늘은 예제를 넣습니다. 그다음 검사를 돌리는데, 여기가 이 도구의 핵심이에요.</p></div>
+  <div class="block"><div class="label">명령 <button class="copy" type="button">복사</button></div>
+<pre class="cmd"><span class="p">$ </span>python3 $V -b 연습1 ingest plans $E/plans_raw.json
+<span class="p">$ </span>python3 $V -b 연습1 check</pre></div>
+  <div class="block"><div class="label">검사 화면</div>
+<pre class="out">플랜 3편 반영
+
+[1편] <span class="bad">✘</span> 불편형 · 추정 19초 · 훅 린트 38점(The Question)
+  제목: 차 시트 틈 과자 부스러기, 손으로 털지 마세요 (3가지 이유)
+  <span class="bad">✘ 장면: 1번 컷 소재 없음</span>
+  <span class="warn">△</span> 추정 19초 (목표 25~35)
+  <span class="warn">△</span> 훅 린트 38점(WEAK) — 약한 곳: 손실·위험 → 지금 방식을 유지하면 잃는 것 한 줄 <span class="dim">[보정 전 휴리스틱]</span>
+  <span class="warn">△</span> 썸네일이 제목과 겹침: 부스러기,시트,틈
+  <span class="warn">△</span> 장면: 1번 컷 6.8초 — 핵심 등장이 3초를 넘길 수 있음
+  <span class="warn">△</span> 장면: 소재 미지정 4컷 (검정 화면)
+
+[2편] <span class="bad">✘</span> 상황극형 · 추정 20초 · 훅 린트 40점(미분류)
+  <span class="dim">...</span>
+[3편] <span class="bad">✘</span> 랭킹형 · 추정 21초 · 훅 린트 42점(The Question)
+  <span class="dim">...</span>
+
+<span class="bad">오류 있음 — 발행 불가</span></pre></div>
+  <table class="opts">
+    <tr><td>✘ 오류</td><td>고치지 않으면 승인도 발행도 안 돼요. 지금은 "1번 컷 소재 없음" 하나뿐인데, 아직 사진을 안 넣었으니 당연한 거예요. 8단계에서 사라집니다.</td></tr>
+    <tr><td>△ 경고</td><td>읽고 내가 판단해요. "추정 19초, 목표 25~35"는 대사가 짧다는 뜻, "썸네일이 제목과 겹침"은 썸네일 글자와 제목이 같은 말을 한다는 뜻이에요.</td></tr>
+    <tr><td>훅 린트 38점</td><td>첫 문장의 힘을 다섯 가지(구체성·호명·손실위험·호기심·간결성)로 본 점수. "[보정 전 휴리스틱]"은 아직 실제 조회수와 맞춰 보지 않은 참고 점수라는 표시예요.</td></tr>
+  </table>
+  <div class="done-row"><input type="checkbox" id="d7" data-s="7"><label for="d7">이 단계 끝</label></div>
+</section>
+
+<section class="step" id="s8">
+  <div class="step-head"><span class="num">07</span><h2>첫 문장 고쳐 보기</h2><span class="time">5분</span></div>
+  <div class="why"><p>첫 문장만 따로 점수를 볼 수 있어요. 원래 문장을 먼저 넣고, 누구인지(40대), 숫자(1주일), 잃는 말(잃는 게)을 넣어 다시 봅니다.</p></div>
+  <div class="block"><div class="label">명령 <button class="copy" type="button">복사</button></div>
+<pre class="cmd"><span class="p">$ </span>python3 $V lint "차 시트 틈에 낀 과자 부스러기, 손으로 털어도 안 나오죠?"
+<span class="p">$ </span>python3 $V lint "아이 키우는 40대 분들, 시트 틈 부스러기 1주일 방치하면 잃는 게 있어요. 뭘까요?"</pre></div>
+  <div class="block"><div class="label">두 결과를 나란히</div>
+<pre class="out"><span class="dim">원래 문장</span>
+"parts": {"구체성": 34, "호명": 26, <span class="bad">"손실·위험": 22</span>, "호기심": 59, "간결성": 100},
+"v": <span class="bad">38</span>, "band": <span class="bad">"WEAK"</span>, "weak": "손실·위험", "fix": "지금 방식을 유지하면 잃는 것 한 줄"
+
+<span class="dim">고친 문장</span>
+"parts": {"구체성": 78, "호명": 76, <span class="ok">"손실·위험": 62</span>, "호기심": 76, "간결성": 100},
+"v": <span class="ok">72</span>, "band": <span class="ok">"STRONG"</span></pre></div>
+  <div class="success">38점에서 72점으로 올랐어요. 이제 <b>내 문장을 하나 만들어 세 번 고쳐 보세요.</b> 점수가 높은데 어색한 문장이면 사람 판단이 이깁니다. 점수는 참고예요.</div>
+  <div class="done-row"><input type="checkbox" id="d8" data-s="8"><label for="d8">이 단계 끝</label></div>
+</section>
+
+<section class="step" id="s9">
+  <div class="step-head"><span class="num">08</span><h2>사진 등록하고 컷에 붙이기</h2><span class="time">5분</span></div>
+  <div class="why"><p>연습이니 빈 파일 두 개를 사진 대신 만듭니다. 실제로는 직접 찍은 사진을 <code>연습1/assets/</code>에 넣으면 돼요. 등록할 때는 역할과 권리를 꼭 적습니다.</p></div>
+  <div class="block"><div class="label">명령 <button class="copy" type="button">복사</button></div>
+<pre class="cmd"><span class="p">$ </span>printf 'x' &gt; 연습1/assets/nozzle.jpg
+<span class="p">$ </span>printf 'x' &gt; 연습1/assets/box.jpg
+<span class="p">$ </span>python3 $V -b 연습1 asset 연습1/assets/nozzle.jpg --role "사용 장면" --rights "직접 촬영"
+<span class="p">$ </span>python3 $V -b 연습1 asset 연습1/assets/box.jpg --role 정면 --rights "판매자 제공"</pre></div>
+  <div class="block"><div class="label">이렇게 나오면 성공</div>
+<pre class="out">소재 <span class="hl">a2d7e</span>: 연습1/assets/nozzle.jpg · 사용 장면 · 직접 촬영
+소재 <span class="hl">ab271</span>: 연습1/assets/box.jpg · 정면 · 판매자 제공</pre></div>
+  <div class="note"><p>앞의 다섯 글자가 소재 번호예요. <b>여러분 화면에는 다른 글자가 나옵니다.</b> 아래 명령의 a2d7e·ab271 자리에 내 화면의 글자를 넣어 1편의 네 컷에 붙입니다.</p></div>
+  <div class="block"><div class="label">명령 (번호를 내 것으로 바꿔서) <button class="copy" type="button">복사</button></div>
+<pre class="cmd"><span class="p">$ </span>python3 $V -b 연습1 scene --plan 1 "1=a2d7e,2=a2d7e,3=ab271,4=a2d7e"</pre></div>
+  <div class="block"><div class="label">✘가 ✔로 바뀐 화면</div>
+<pre class="out">[1편] <span class="ok">✔</span> 불편형 · 추정 19초 · 훅 린트 38점(The Question)
+  제목: 차 시트 틈 과자 부스러기, 손으로 털지 마세요 (3가지 이유)
+  <span class="warn">△</span> 추정 19초 (목표 25~35)
+  <span class="warn">△</span> 훅 린트 38점(WEAK) — 약한 곳: 손실·위험 → 지금 방식을 유지하면 잃는 것 한 줄
+  <span class="warn">△</span> 썸네일이 제목과 겹침: 부스러기,시트,틈
+  <span class="warn">△</span> 장면: 1번 컷 6.8초 — 핵심 등장이 3초를 넘길 수 있음</pre></div>
+  <div class="success">권리를 <b>미확인</b>으로 등록한 사진을 컷에 붙이면 다시 ✘가 납니다. 남의 사진을 쓰지 않는다는 규칙이 코드 안에 들어 있는 거예요.</div>
+  <div class="done-row"><input type="checkbox" id="d9" data-s="9"><label for="d9">이 단계 끝</label></div>
+</section>
+
+<section class="step" id="s10">
+  <div class="step-head"><span class="num">09</span><h2>내보내기와 발행 문구</h2><span class="time">5분</span></div>
+  <div class="why"><p>파일 여섯 개가 나오지만 오늘 쓰는 건 <code>factory_1.md</code> 하나예요. Hook, Body, CTA, Shots가 영상 편집 순서 그대로라 캡컷이나 브루에 붙여 영상을 만들면 됩니다. 영상 만들기는 다음 차시.</p></div>
+  <div class="block"><div class="label">명령 <button class="copy" type="button">복사</button></div>
+<pre class="cmd"><span class="p">$ </span>python3 $V -b 연습1 export --plan 1
+<span class="p">$ </span>cat 연습1/exports/factory_1.md</pre></div>
+  <div class="block"><div class="label">factory_1.md</div>
+<pre class="out">  → 연습1/exports/script_1.json
+  → <span class="hl">연습1/exports/factory_1.md</span>
+  → 연습1/exports/script_045_1.txt
+  → 연습1/exports/publish_1.md
+  → 연습1/exports/research.md
+  → 연습1/exports/content_plan.md
+
+# 차 시트 틈 과자 부스러기, 손으로 털지 마세요 (3가지 이유)
+<span class="dim">&gt; 장르 팩: 쇼핑 · 제휴(쿠팡 파트너스) · 훅: problem · 목표 25~35초 · 720p
+&gt; 표기: 쿠팡 파트너스 활동의 일환으로 수수료를 제공받습니다</span>
+
+## Hook
+차 시트 틈에 낀 과자 부스러기, 손으로 털어도 안 나오죠?
+## Body
+이 미니 청소기 노즐은 폭이 1.5cm라 틈 안으로 그대로 들어갑니다.
+리뷰 88213번 분도 같은 고민이었다고 해요.
+## CTA
+링크는 고정 댓글에 있어요.
+## Shots
+1. 0~3초: 시트 틈 클로즈업, 손가락으로 털다 실패 (핵심 등장)
+2. 노즐이 틈에 들어가 빨아들이는 장면 (★ 센 문장, 자막 크게)
+3. 리뷰 캡처 화면
+4. 엔딩, 깨끗한 시트 틈 → 처음 장면으로 루프</pre></div>
+  <div class="block"><div class="label">발행 문구 <button class="copy" type="button">복사</button></div>
+<pre class="cmd"><span class="p">$ </span>python3 $V -b 연습1 publish-text --plan 1</pre></div>
+  <div class="block"><div class="label">유튜브 부분</div>
+<pre class="out">=== YouTube ===
+[제목]
+차 시트 틈 과자 부스러기, 손으로 털지 마세요 (3가지 이유)
+
+[설명]
+차 시트 틈 부스러기 청소용 미니 무선 청소기. <span class="hl">쿠팡 파트너스 활동의 일환으로 수수료를 제공받습니다.</span> 상세: https://example.com/p/1
+
+#차량청소 #미니청소기 #무선청소기 #시트틈 #차량용품 #쇼츠 #쿠팡파트너스 #자동차 #청소꿀팁 #부스러기
+
+[고정 댓글]
+프로필 링크 https://example.com/p/1 (쿠팡 파트너스 활동의 일환으로 수수료를 제공받습니다)
+
+=== TikTok ===  <span class="dim">...</span>
+=== Instagram ===  <span class="dim">...</span></pre></div>
+  <div class="success">표기 문구가 유튜브·틱톡·인스타에 전부 들어가 있어요. 제휴 수익이 있으면 법적 의무라서 <b>빼는 옵션은 없습니다.</b> 이 문구를 복사해 유튜브 스튜디오에 붙이면 발행 준비 끝이에요.</div>
+  <div class="done-row"><input type="checkbox" id="d10" data-s="10"><label for="d10">이 단계 끝</label></div>
+</section>
+
+<section class="step" id="s11">
+  <div class="step-head"><span class="num">10</span><h2>승인과 게이트</h2><span class="time">3분</span></div>
+  <div class="why"><p>대본이 마음에 들면 승인 기록을 남기고, 발행 전 점검 12개를 봅니다. 검사에 ✘가 남아 있으면 승인이 거부되니, 8단계를 건너뛰면 여기서 막혀요.</p></div>
+  <div class="block"><div class="label">명령 <button class="copy" type="button">복사</button></div>
+<pre class="cmd"><span class="p">$ </span>python3 $V -b 연습1 approve --plan 1
+<span class="p">$ </span>python3 $V -b 연습1 gates --plan 1 --video 연습1/renders/1.mp4</pre></div>
+  <div class="block"><div class="label">오늘의 정상 화면</div>
+<pre class="out">굿 기록 — 1편. 이제 gates → upload
+
+<span class="ok">✔</span> 굿 승인 기록(approve)
+<span class="ok">✔</span> 플랜 검사 오류 0
+<span class="ok">✔</span> 장면표 검사 오류 0
+<span class="ok">✔</span> [확인 필요] 0
+<span class="ok">✔</span> 소재 권리 미확인 0 (현재 0)
+<span class="ok">✔</span> 다른 편과 대사 유사도 &lt; 50% (최대 19%)
+<span class="ok">✔</span> 이 편은 아직 업로드 안 함/결과 확정
+<span class="ok">✔</span> 오늘 업로드 0/2
+<span class="ok">✔</span> 직전 업로드와 6시간 간격
+<span class="bad">✘</span> 영상 파일 존재
+<span class="bad">✘</span> 세로·180초 이하 (Shorts 조건)
+<span class="bad">✘</span> YouTube 토큰(VSS_YT_TOKEN) 있음
+
+<span class="bad">막힘 — ✘ 항목 해결 전 업로드 금지</span></pre></div>
+  <div class="success">12개 중 9개 ✔, 영상 관련 3개 ✘. <b>이게 오늘의 정상 화면이에요.</b> 영상이 아직 없으니까요. 자동 업로드는 수업에서 쓰지 않습니다. 9단계의 발행 문구를 복사해 직접 올리는 게 더 안전하고 빨라요.</div>
+  <div class="done-row"><input type="checkbox" id="d11" data-s="11"><label for="d11">이 단계 끝</label></div>
+</section>
+
+<section class="step" id="s12">
+  <div class="step-head"><span class="num">숙제</span><h2>48시간 뒤에 할 일</h2><span class="time">영상 올린 분만</span></div>
+  <div class="why"><p>영상을 올렸다면 48시간 뒤 유튜브 스튜디오에서 조회수와 "계속 시청 비율"을 보고 넣습니다. 연습으로 가상의 숫자를 넣어 볼게요.</p></div>
+  <div class="block"><div class="label">명령 <button class="copy" type="button">복사</button></div>
+<pre class="cmd"><span class="p">$ </span>python3 $V -b 연습1 perf --plan 1 --v48 900 --stay 58 --click 7
+<span class="p">$ </span>python3 $V -b 연습1 perf --plan 2 --v48 2400 --stay 66 --click 21 --conv 1
+<span class="p">$ </span>python3 $V -b 연습1 perf --plan 3 --v48 400 --stay 41 --click 2
+<span class="p">$ </span>python3 $V -b 연습1 winner</pre></div>
+  <div class="block"><div class="label">승자 화면</div>
+<pre class="out">n=3 <span class="ok">승자</span>: 카시트 밑 청소 포기했던 분, 20분이면 차 한 대 끝 (상황극형) 점수 4604
+    <span class="bad">패자</span>: 미니 청소기 흡입력 약하다는 후기, 부스러기 1분 테스트 결과 (랭킹형) 점수 604
+
+[규칙 후보] 이 소재는 상황극형 훅, 1번 컷 7.5초가 48h 기준 우세. 다음 배치에서 재현되면 규칙으로 올린다 (R-007).</pre></div>
+  <div class="success">"규칙 후보"는 아직 규칙이 아니에요. 한 번 이긴 건 우연일 수 있어서, <b>다음 배치에서도 이기면</b> 그때 규칙으로 올립니다.</div>
+</section>
+
+<div class="end">
+  <h2>끝났어요. 지금 내 폴더에는 이게 있습니다</h2>
+<pre class="out" style="border-top:none">연습1/
+├─ project.json        <span class="dim">← 리서치·대본·소재·승인·성과가 전부 이 한 파일에</span>
+├─ rules.json          <span class="dim">← 규칙 원장</span>
+├─ assets/             <span class="dim">← 사진</span>
+└─ exports/
+   ├─ factory_1.md     <span class="dim">← 영상 만들 때 쓰는 대본</span>
+   └─ publish_1.md     <span class="dim">← 발행 문구</span></pre>
+  <p style="margin-top:14px">연습1 폴더를 통째로 복사하면 다른 컴퓨터에서도 이어서 할 수 있어요.</p>
+  <p>실전에서는 터미널 대신 Claude Code를 열고 이렇게 말하면 Claude가 위 과정을 알아서 합니다.</p>
+<pre class="cmd" style="margin-top:6px">/viral-shorts-studio 쿠팡 제휴로 "[내 상품명]" 쇼츠 3편 기획을 시작하자. 링크는 [URL]. 배치 폴더는 shorts/1차로.</pre>
+  <p style="margin-top:12px">여러분이 손대는 곳은 세 번이에요.</p>
+  <div class="chips"><span>소싱 질문에 답하기</span><span>대본 읽고 승인하기</span><span>48시간 뒤 숫자 넣기</span></div>
+  <p style="margin-top:14px">막히면 <a href="https://github.com/ninestonelee/viral-shorts-studio-skill/blob/main/docs/04_자주묻는질문.md">자주 묻는 질문</a>을 먼저 보세요. 글로 된 같은 내용은 <a href="https://github.com/ninestonelee/viral-shorts-studio-skill/blob/main/docs/00_핸즈온.md">docs/00_핸즈온.md</a>에 있습니다.</p>
+</div>
+
+</main>
+</div>
+</div>
+
+<script>
+(function(){
+  var KEY='vss-handson-done', TOTAL=11, done={};
+  try{ done=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ done={}; }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(done)); }catch(e){} }
+  function render(){
+    var n=0;
+    for(var i=1;i<=TOTAL;i++){
+      var on=!!done[i]; if(on) n++;
+      var cb=document.getElementById('d'+i); if(cb) cb.checked=on;
+      var li=document.querySelector('#rail li[data-s="'+i+'"]'); if(li) li.classList.toggle('done',on);
+    }
+    document.getElementById('count').textContent=n+' / '+TOTAL+' 완료';
+    document.getElementById('bar').style.width=(n/TOTAL*100)+'%';
+  }
+  document.querySelectorAll('.done-row input').forEach(function(cb){
+    cb.addEventListener('change',function(){ done[cb.dataset.s]=cb.checked; save(); render(); });
+  });
+  document.querySelectorAll('button.copy').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var pre=btn.closest('.block').querySelector('pre.cmd');
+      var text=Array.from(pre.childNodes).map(function(n){ return n.nodeType===1&&n.classList.contains('p')?'':n.textContent; }).join('');
+      var ok=function(){ btn.textContent='복사됨'; setTimeout(function(){ btn.textContent='복사'; },1500); };
+      var fallback=function(){ var r=document.createRange(); r.selectNodeContents(pre); var s=getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent='선택됨, Ctrl+C'; setTimeout(function(){ btn.textContent='복사'; },2000); };
+      if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(ok,fallback); } else fallback();
+    });
+  });
+  render();
+})();
+</script>
+
+</body>
+</html>
