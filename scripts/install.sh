@@ -13,6 +13,12 @@ if [ -e "$DST" ] && [ ! -L "$DST" ]; then
 fi
 ln -sfn "$SRC" "$DST"
 echo "설치 완료 → $DST"
+# Codex도 쓰는 컴퓨터면 Codex 스킬 폴더에도 연결
+if [ -d "$HOME/.codex" ]; then
+  mkdir -p "$HOME/.agents/skills"
+  CDST="$HOME/.agents/skills/viral-shorts-studio"
+  if [ ! -e "$CDST" ] || [ -L "$CDST" ]; then ln -sfn "$SRC" "$CDST"; echo "Codex 연결 → $CDST"; fi
+fi
 echo "확인 중..."
 if command -v python3 >/dev/null 2>&1; then
   python3 "$DST/scripts/vss.py" packs

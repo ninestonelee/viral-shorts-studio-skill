@@ -28,7 +28,15 @@
 
 ## 설치 (5분)
 
-자세한 그림 설명은 [docs/01_설치하기.md](docs/01_설치하기.md)에 있어요. 급하면 아래만 따라 하세요.
+자세한 그림 설명은 [docs/01_설치하기.md](docs/01_설치하기.md)에 있어요.
+
+**가장 쉬운 방법: 에이전트에게 맡기기.** Claude Code(또는 Codex)를 열고 아래 문장을 그대로 붙여 넣으세요. 에이전트가 내려받고 설치 스크립트까지 돌려 줍니다. 터미널 명령을 직접 칠 필요가 없어요.
+```
+https://github.com/ninestonelee/viral-shorts-studio-skill 이 저장소를 ~/Documents에 clone 하고, 그 안의 scripts/install.sh(Windows면 scripts\install.ps1)를 실행해서 스킬을 설치해 줘. 마지막에 장르 팩 8줄이 나오는지 확인해 줘.
+```
+끝나면 Claude Code를 닫고 다시 열어 `/viral-shorts-studio`가 보이면 성공이에요. Codex는 `~/.agents/skills`에 함께 연결되므로 같은 스킬을 바로 씁니다.
+
+**직접 치고 싶으면** 아래 네 줄이에요.
 
 **Mac**
 ```bash

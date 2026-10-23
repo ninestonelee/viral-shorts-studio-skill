@@ -154,7 +154,11 @@ table.opts td:first-child{font-family:var(--font-mono);font-size:13px;white-spac
 
 <section class="step" id="s2">
   <div class="step-head"><span class="num">01</span><h2>설치</h2><span class="time">5분</span></div>
-  <div class="why"><p>네 줄의 뜻은 이래요. 내 문서 폴더로 가서, 저장소를 내려받고, 그 폴더로 들어가서, 설치 스크립트를 실행한다.</p></div>
+  <div class="why"><p><b>가장 쉬운 방법은 에이전트에게 맡기는 거예요.</b> Claude Code(또는 Codex)를 열고 아래 문장을 그대로 붙여 넣으면, 에이전트가 내려받고 설치 스크립트까지 돌려 줍니다. 터미널 명령을 직접 칠 필요가 없어요.</p></div>
+  <div class="block"><div class="label">Claude Code / Codex에 붙여 넣기 <button class="copy" type="button">복사</button></div>
+<pre class="cmd" style="white-space:pre-wrap">https://github.com/ninestonelee/viral-shorts-studio-skill 이 저장소를 ~/Documents에 clone 하고, 그 안의 scripts/install.sh(Windows면 scripts\install.ps1)를 실행해서 스킬을 설치해 줘. 마지막에 장르 팩 8줄이 나오는지 확인해 줘.</pre></div>
+  <div class="success">끝나면 Claude Code를 닫고 다시 열어 <b>/viral-shorts-studio</b>가 보이면 성공. Codex를 쓰는 컴퓨터면 Codex 스킬 폴더에도 같이 연결돼요.</div>
+  <div class="why" style="margin-top:18px"><p><b>직접 치고 싶으면</b> 아래 네 줄이에요. 뜻은 이래요. 내 문서 폴더로 가서, 저장소를 내려받고, 그 폴더로 들어가서, 설치 스크립트를 실행한다.</p></div>
   <div class="block"><div class="label">Mac <button class="copy" type="button">복사</button></div>
 <pre class="cmd"><span class="p">$ </span>cd ~/Documents
 <span class="p">$ </span>git clone https://github.com/ninestonelee/viral-shorts-studio-skill.git
