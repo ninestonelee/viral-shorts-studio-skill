@@ -36,6 +36,16 @@ h1{font-size:clamp(26px,4vw,38px);line-height:1.2;margin:8px 0 10px;text-wrap:ba
 .bar{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden;max-width:360px}
 .bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
 .progress b{font-weight:500;color:var(--muted);font-size:14px}
+.rt{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+.rt-label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.rt-btn{font:inherit;font-size:14px;font-weight:500;background:transparent;border:1px solid var(--line);color:var(--fg);border-radius:999px;padding:5px 14px;cursor:pointer;display:inline-flex;gap:6px;align-items:baseline}
+.rt-btn small{font-family:var(--font-mono);font-size:11px;color:var(--muted)}
+.rt-btn.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.rt-btn.on small{color:rgba(255,255,255,.8)}
+.rt-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.rt-hint{font-size:13px;color:var(--muted);flex-basis:100%}
+.rt-hint b{font-family:var(--font-mono);font-weight:500;color:var(--fg)}
+[data-rt="node"] .py-only,[data-rt="py"] .node-only{display:none}
 
 .grid{display:grid;grid-template-columns:220px minmax(0,1fr);gap:32px;padding-top:28px}
 nav.rail{position:sticky;top:env(safe-area-inset-top,0px);align-self:start;padding-top:8px}
@@ -104,6 +114,12 @@ table.opts td:first-child{font-family:var(--font-mono);font-size:13px;white-spac
   <h1>설치부터 발행 문구까지, 터미널에서 한 줄씩 따라가기</h1>
   <p class="lead">연습용 가상 상품 "무선 미니 청소기"로 대본 3편을 만들고, 검사를 통과시키고, 발행 문구까지 손에 쥐어 봅니다. 한 줄 치고, 화면을 확인하고, 다음으로 갑니다. 약 40분.</p>
   <div class="progress"><div class="bar"><i id="bar"></i></div><b id="count">0 / 11 완료</b></div>
+  <div class="rt" role="radiogroup" aria-label="실행기 선택">
+    <span class="rt-label">내 컴퓨터에 있는 것</span>
+    <button type="button" id="rt-py" class="rt-btn on" aria-pressed="true">파이썬 <small>python3</small></button>
+    <button type="button" id="rt-node" class="rt-btn" aria-pressed="false">Node.js <small>node</small></button>
+    <span class="rt-hint" id="rt-hint">아래 모든 명령이 <b>python3 $V</b>로 표시됩니다. 파이썬이 없으면 Node.js를 누르세요. 화면 결과는 똑같아요.</span>
+  </div>
 </header>
 
 <div class="grid">
@@ -127,7 +143,7 @@ table.opts td:first-child{font-family:var(--font-mono);font-size:13px;white-spac
 
 <section class="step" id="s1">
   <div class="step-head"><span class="num">00</span><h2>준비물 확인</h2><span class="time">2분</span></div>
-  <div class="why"><p>터미널(Mac은 "터미널" 앱, Windows는 "PowerShell")을 열고 세 줄을 차례로 쳐 보세요. 첫 줄은 꼭 숫자가 나와야 하고, 둘째와 셋째는 <b>둘 중 하나만</b> 숫자가 나오면 준비 끝이에요. 파이썬이 없으면 Node 판으로 똑같이 진행합니다(2단계에서 한 줄만 달라요).</p></div>
+  <div class="why"><p>터미널(Mac은 "터미널" 앱, Windows는 "PowerShell")을 열고 세 줄을 차례로 쳐 보세요. 첫 줄은 꼭 숫자가 나와야 하고, 둘째와 셋째는 <b>둘 중 하나만</b> 숫자가 나오면 준비 끝이에요. 숫자가 나온 쪽을 페이지 맨 위에서 눌러 두세요. 그러면 이 뒤의 명령이 전부 그 쪽으로 바뀝니다.</p></div>
   <div class="block"><div class="label">명령 <button class="copy" type="button">복사</button></div>
 <pre class="cmd"><span class="p">$ </span>claude --version
 <span class="p">$ </span>python3 --version
@@ -171,9 +187,8 @@ shop-own   쇼핑 · 자사 상품 — 내가 파는 상품. 1차 리뷰가 리�
 <span class="p">$ </span>E=~/Documents/viral-shorts-studio-skill/examples/sample_batch
 <span class="p">$ </span>mkdir -p ~/Documents/shorts &amp;&amp; cd ~/Documents/shorts</pre></div>
   <div class="success">세 번째 줄은 작업 폴더 <b>shorts</b>를 만들고 그 안으로 들어가는 거예요. 화면에 아무것도 안 나오는 게 정상입니다.</div>
-  <div class="note"><p><b>파이썬이 없는 분은 첫 줄만 이렇게.</b> 그리고 이 뒤의 모든 명령에서 <code>python3 $V</code>를 <code>node $V</code>로 바꿔 치면 됩니다. 나오는 화면은 똑같아요.</p></div>
-  <div class="block"><div class="label">Node 판 <button class="copy" type="button">복사</button></div>
-<pre class="cmd"><span class="p">$ </span>V=~/.claude/skills/viral-shorts-studio/scripts/vss.js</pre></div>
+  <div class="note py-only"><p>맨 위에서 <b>Node.js</b>를 누르면 이 줄의 <code>vss.py</code>가 <code>vss.js</code>로, 뒤의 모든 <code>python3 $V</code>가 <code>node $V</code>로 바뀌어요. 두 판은 같은 파일을 읽고 쓰니 섞어 써도 됩니다.</p></div>
+  <div class="note node-only"><p><b>지금 Node 판으로 보고 있어요.</b> 프로그램 파일이 <code>vss.js</code>이고 모든 명령이 <code>node</code>로 시작합니다. 파이썬 판과 화면·결과 파일이 완전히 같아요.</p></div>
   <div class="done-row"><input type="checkbox" id="d3" data-s="3"><label for="d3">이 단계 끝</label></div>
 </section>
 
@@ -441,6 +456,27 @@ shop-own   쇼핑 · 자사 상품 — 내가 파는 상품. 1차 리뷰가 리�
     document.getElementById('count').textContent=n+' / '+TOTAL+' 완료';
     document.getElementById('bar').style.width=(n/TOTAL*100)+'%';
   }
+  // 실행기 전환: python3 $V ↔ node $V, vss.py ↔ vss.js
+  var RTKEY='vss-handson-rt', rt='py';
+  try{ rt=localStorage.getItem(RTKEY)||'py'; }catch(e){}
+  if(location.hash==='#node') rt='node'; if(location.hash==='#python') rt='py';
+  var cmdNodes=[];
+  document.querySelectorAll('pre.cmd').forEach(function(pre){
+    pre.childNodes.forEach(function(n){ if(n.nodeType===3 && /python3 \$V|scripts\/vss\.py/.test(n.textContent)) cmdNodes.push({n:n, py:n.textContent}); });
+  });
+  function applyRt(){
+    document.documentElement.setAttribute('data-rt', rt);
+    cmdNodes.forEach(function(c){ c.n.textContent = rt==='node' ? c.py.replace(/python3 \$V/g,'node $V').replace(/scripts\/vss\.py/g,'scripts/vss.js') : c.py; });
+    document.getElementById('rt-py').classList.toggle('on', rt==='py'); document.getElementById('rt-py').setAttribute('aria-pressed', rt==='py');
+    document.getElementById('rt-node').classList.toggle('on', rt==='node'); document.getElementById('rt-node').setAttribute('aria-pressed', rt==='node');
+    document.getElementById('rt-hint').innerHTML = rt==='node'
+      ? '아래 모든 명령이 <b>node $V</b>로 표시됩니다. 프로그램 파일은 <b>vss.js</b>예요. 파이썬 판과 화면 결과는 똑같아요.'
+      : '아래 모든 명령이 <b>python3 $V</b>로 표시됩니다. 파이썬이 없으면 Node.js를 누르세요. 화면 결과는 똑같아요.';
+    try{ localStorage.setItem(RTKEY, rt); }catch(e){}
+  }
+  document.getElementById('rt-py').addEventListener('click',function(){ rt='py'; applyRt(); });
+  document.getElementById('rt-node').addEventListener('click',function(){ rt='node'; applyRt(); });
+  applyRt();
   document.querySelectorAll('.done-row input').forEach(function(cb){
     cb.addEventListener('change',function(){ done[cb.dataset.s]=cb.checked; save(); render(); });
   });
