@@ -1,0 +1,14 @@
+{
+  "name": "",
+  "count": 5,
+  "packId": "shop-own",
+  "subject": {"url": "", "name": "", "notes": "", "rel": "own"},
+  "sourcing": {"checks": {}, "show": ""},
+  "research": {"pains": [], "trends": [], "bannedExtra": "", "ref": {"url": "", "text": "", "out": null}},
+  "plans": [],
+  "assets": [],
+  "perf": [],
+  "approvals": [],
+  "uploads": {},
+  "created": ""
+}
