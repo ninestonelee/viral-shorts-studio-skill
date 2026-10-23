@@ -66,11 +66,9 @@ V=~/.claude/skills/viral-shorts-studio/scripts/vss.js
 E=~/Documents/viral-shorts-studio-skill/examples/sample_batch
 ```
 
-`V`는 프로그램, `E`는 연습용 예제 데이터가 있는 폴더예요.
-> **파이썬이 없는 컴퓨터라면** 같은 프로그램의 Node 판 `vss.js`가 있어요. 아래 모든 명령에서 `node $V`를 `node $V`로 바꾸고, `V`를 이렇게 잡으면 됩니다. 나오는 화면은 똑같아요.
-> ```bash
-> V=~/.claude/skills/viral-shorts-studio/scripts/vss.js
-> ```
+`V`는 프로그램(Node 판), `E`는 연습용 예제 데이터가 있는 폴더예요.
+
+> **파이썬이 있는 컴퓨터라면** 파이썬 판 `vss.py`도 똑같이 쓸 수 있어요. 그쪽은 [00_핸즈온.md](00_핸즈온.md)를 보세요. 두 판은 같은 파일을 읽고 쓰니 섞어 써도 됩니다.
 
 
 작업할 폴더도 하나 만들어 들어갑니다.
