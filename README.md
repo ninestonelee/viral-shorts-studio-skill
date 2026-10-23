@@ -21,10 +21,10 @@
 | 준비물 | 확인 방법 |
 |---|---|
 | Claude Code (터미널에서 쓰는 Claude) | 터미널에 `claude --version` 입력 → 버전이 나오면 OK |
-| Python 3.9 이상 | `python3 --version` (Windows는 `python --version`) |
+| Python 3.9 이상 **또는** Node.js 18 이상 (둘 중 하나) | `python3 --version` 또는 `node --version`. 둘 중 하나만 숫자가 나오면 OK |
 | 이 저장소 | 아래 설치 안내 |
 
-Python 패키지 추가 설치는 없어요. 표준 기능만 씁니다.
+추가 패키지 설치는 없어요. 같은 프로그램이 파이썬 판(`vss.py`)과 Node 판(`vss.js`) 두 가지로 들어 있어서, 컴퓨터에 있는 쪽을 설치 스크립트가 알아서 골라 줍니다. 명령·화면·결과 파일은 완전히 같아요.
 
 ## 설치 (5분)
 
@@ -88,7 +88,8 @@ Claude가 팩을 고르고, 소싱 질문을 던지고, 예제 리서치를 넣�
 viral-shorts-studio-skill/
 ├─ viral-shorts-studio/      ← 스킬 본체 (이 폴더가 ~/.claude/skills/ 에 연결됨)
 │  ├─ SKILL.md               Claude가 읽는 작업 순서
-│  ├─ scripts/vss.py         검사·내보내기·게이트를 판정하는 프로그램
+│  ├─ scripts/vss.py         검사·내보내기·게이트를 판정하는 프로그램 (파이썬 판)
+│  ├─ scripts/vss.js         같은 프로그램의 Node 판 (파이썬 없는 컴퓨터용)
 │  ├─ packs/*.json           장르 팩 8종
 │  ├─ templates/             새 배치의 빈 틀, 기본 규칙 7개
 │  └─ references/            검사 항목표, 팩 만드는 법
@@ -101,8 +102,9 @@ viral-shorts-studio-skill/
 
 - **검사는 컴퓨터가, 글은 Claude가, 결정은 내가.** 검사에서 ✘가 나오면 Claude가 "괜찮다"고 넘기지 않고 고쳐서 다시 검사합니다.
 - **유튜브 자동 업로드 기능은 아직 실제 계정으로 검증하지 않았어요.** 수업에서는 발행 문구를 복사해 직접 올리는 것으로 충분합니다.
+- 문서의 명령은 `python3 $V …`로 적혀 있어요. Node 판을 쓰는 분은 `python3`를 `node`로, `vss.py`를 `vss.js`로 바꿔 읽으면 됩니다. 그 외는 전부 같아요.
 - 하루 2편, 6시간 간격이라는 한도가 들어 있어요. 같은 대본을 찍어 내듯 대량 생산하면 채널에 해롭기 때문입니다.
 
 ## 출처와 라이선스
 
-"051 바이럴 쇼츠 스튜디오" 단일 HTML 앱(2026-10-17)의 판정 로직을 Python으로 옮긴 것입니다. 훅 린트는 youtube-agent-skill(MIT)의 아이디어를 한국어로 다시 구현했습니다. MIT License.
+"051 바이럴 쇼츠 스튜디오" 단일 HTML 앱(2026-10-17)의 판정 로직을 Python과 Node.js로 옮긴 것입니다(두 판은 같은 입력에 같은 출력을 냅니다). 훅 린트는 youtube-agent-skill(MIT)의 아이디어를 한국어로 다시 구현했습니다. MIT License.

@@ -14,6 +14,15 @@ fi
 ln -sfn "$SRC" "$DST"
 echo "설치 완료 → $DST"
 echo "확인 중..."
-python3 "$DST/scripts/vss.py" packs
+if command -v python3 >/dev/null 2>&1; then
+  python3 "$DST/scripts/vss.py" packs
+  echo ""; echo "실행기: python3  (명령 예: python3 $DST/scripts/vss.py packs)"
+elif command -v node >/dev/null 2>&1; then
+  node "$DST/scripts/vss.js" packs
+  echo ""; echo "실행기: node  (파이썬이 없어서 Node 판을 씁니다. 명령 예: node $DST/scripts/vss.js packs)"
+else
+  echo "python3도 node도 없어요. 둘 중 하나만 있으면 됩니다. Node.js를 권해요: https://nodejs.org 에서 LTS 설치 후 다시 실행."
+  exit 1
+fi
 echo ""
 echo "위에 장르 팩 8줄이 보이면 성공이에요. Claude Code를 새로 열면 /viral-shorts-studio 스킬이 보입니다."

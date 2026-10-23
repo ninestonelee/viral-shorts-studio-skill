@@ -6,7 +6,7 @@ description: 쇼핑·마케팅 쇼츠를 "만들기 전 절반"부터 차근차�
 # 바이럴 쇼츠 스튜디오 (viral-shorts-studio)
 
 > 한 줄: **검사는 코드가, 글은 Claude가, 결정은 사용자가.**
-> 금지어·길이·3초 등장·대사 중복·하루 한도 같은 판정은 `scripts/vss.py`가 합니다. Claude가 "이 정도면 괜찮겠지"라고 넘기지 않습니다.
+> 금지어·길이·3초 등장·대사 중복·하루 한도 같은 판정은 `scripts/vss.py`(또는 같은 동작의 Node 판 `scripts/vss.js`)가 합니다. Claude가 "이 정도면 괜찮겠지"라고 넘기지 않습니다.
 
 ## 이 스킬이 하는 일, 하지 않는 일
 
@@ -31,6 +31,8 @@ description: 쇼핑·마케팅 쇼츠를 "만들기 전 절반"부터 차근차�
 ## Claude가 따르는 순서
 
 아래에서 `V`는 `~/.claude/skills/viral-shorts-studio/scripts/vss.py`, 모든 명령은 `-b <배치폴더>`를 붙입니다.
+
+**실행기 고르기(처음 한 번).** `python3 --version`이 되면 그대로 `python3 $V …`를 쓴다. 안 되면(command not found) `node --version`을 확인하고 `V`를 `scripts/vss.js`로 바꿔 `node $V …`로 쓴다. 두 프로그램은 명령·출력·project.json이 완전히 같으니 아래 예시의 `python3`만 `node`로 읽으면 된다. 둘 다 없으면 사용자에게 Node.js(https://nodejs.org LTS) 설치를 안내하고 멈춘다.
 
 ### 0. 팩 고르기
 `python3 $V packs`로 8종을 보여주고, 사용자 상황에 맞는 것을 **Claude가 추천하고 이유를 말한 뒤** 사용자가 고릅니다. 맞는 게 없으면 가장 가까운 팩을 `<배치>/pack.json`으로 복사해 고칩니다(`references/pack-schema.md`).
